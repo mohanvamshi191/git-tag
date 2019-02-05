@@ -1,0 +1,39 @@
+tag = "$tag"
+tag_message = "$tag_message"
+
+if (tag == "" || tag_message == "") {
+    currentBuild.result = "FAILURE"
+}
+
+repos = [
+            'https://github.com/csenapati12/ansible-playbook-sample.git',
+            'https://github.com/csenapati12/java-tomcat-maven-example.git'
+        ]
+
+node () {
+    
+    stage("Tag Repos") {
+        
+        for (String repo in repos ) {
+            
+            sh " rm -Rf Repo"
+            
+            sh " mkdir Repo "
+            
+            checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Repo'], [$class: 'CleanBeforeCheckout']], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'ssh details' url: repo]]])
+            checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], gitTool: 'Default', submoduleCfg: [], userRemoteConfigs: [[url: repo
+
+            
+           // sshagent(['6e5c3081-96ac-4a13-9c02-5af7ea7bcabd']) {
+
+                sh " cd Repo && git tag -a ${tag} -m '${tag_message}' "
+                sh " cd Repo && git push origin ${tag} "
+            
+                sh " rm -Rf Repo "
+            //}
+            
+        }
+        
+    }
+    
+}
